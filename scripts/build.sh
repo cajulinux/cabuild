@@ -18,7 +18,7 @@ EOF
 
 print "=== Create loop device ==="
 LOOP_DEV=$(sudo losetup -Pf --show ./caju.img)
-trap 'sudo losetup -D' ERR SIGINT EXIT
+trap 'sudo losetup -D' EXIT
 print "Loop device create at $LOOP_DEV"
 
 print "=== Format partitions ==="
@@ -30,7 +30,7 @@ sudo mount -v ${LOOP_DEV}p2 /mnt/cajurootfs
 sudo mkdir -pv /mnt/cajurootfs/efi
 sudo mount -v ${LOOP_DEV}p1 /mnt/cajurootfs/efi
 
-trap 'sudo umount /mnt/cajurootfs/efi; sudo umount /mnt/cajurootfs; sudo losetup -d ${LOOP_DEV}' ERR SIGINT EXIT
+trap 'sudo umount /mnt/cajurootfs/efi; sudo umount /mnt/cajurootfs; sudo losetup -d ${LOOP_DEV}' EXIT
 
 print "=== Creating FHS folders ==="
 sudo mkdir -pv /mnt/cajurootfs/{dev,etc,home,proc,root,sys,temp,caju,var,run,apps}
@@ -56,7 +56,7 @@ sudo mount -t devpts devpts /mnt/cajurootfs/dev/pts
 sudo mount -t proc proc /mnt/cajurootfs/proc
 sudo mount -t sysfs sysfs /mnt/cajurootfs/sys
 
-trap 'sudo umount /mnt/cajurootfs/dev/pts; sudo umount /mnt/cajurootfs/dev; sudo umount /mnt/cajurootfs/proc; sudo umount /mnt/cajurootfs/sys; sudo umount /mnt/cajurootfs/efi; sudo umount /mnt/cajurootfs; sudo losetup -d ${LOOP_DEV}' ERR SIGINT EXIT
+trap 'sudo umount /mnt/cajurootfs/dev/pts; sudo umount /mnt/cajurootfs/dev; sudo umount /mnt/cajurootfs/proc; sudo umount /mnt/cajurootfs/sys; sudo umount /mnt/cajurootfs/efi; sudo umount /mnt/cajurootfs; sudo losetup -d ${LOOP_DEV}' EXIT
 
 print "=== Start Programs Build ==="
 
@@ -68,6 +68,7 @@ mkdir -pv /tmp/caju
 cd /tmp/caju
 musl
 mksh
+toybox
 
 print "=== Changes root to rootfs ==="
 chroot /mnt/cajurootfs/
