@@ -42,7 +42,7 @@ toybox() {
     tar -xzf toybox-0.8.14.tar.gz
     cd toybox-0.8.14
 
-    cat > /tmp/toycc << 'EOF'
+    cat > /tmp/toycc <<'EOF'
     #!/usr/bin/sh
     exec clang --target=x86_64-unknown-linux-musl \
         -I/mnt/cajurootfs/caju/include \
@@ -69,4 +69,23 @@ EOF
     print "=== Toybox symlinks installed ==="
 
     cd ..
+}
+
+runit() {
+    print "Downloading runit source..."
+    wget -nc https://smarden.org/runit/runit-2.3.1.tar.gz
+    tar -xzf runit-2.3.1.tar.gz
+    cd admin/runit-2.3.1
+
+    print "Configuring compiler (Hijacking conf-cc and conf-ld)..."
+    echo 'clang --target=x86_64-linux-musl -O2 -Wall -Wimplicit -Wunused -Wcomment -Wchar-subscripts -Wuninitialized -Wshadow -Wcast-qual -Wcast-align -Wwrite-strings -I/mnt/cajurootfs/caju/include -L/mnt/cajurootfs/caju/lib -B/mnt/cajurootfs/caju/lib' > src/conf-cc
+    echo 'clang --target=x86_64-linux-musl -s -L/mnt/cajurootfs/caju/lib' > src/conf-ld
+
+    print "Compiling runit..."
+    package/compile
+
+    print "Installing runit into Caju..."
+    sudo cp command/* $CAJU/caju/bin/
+    sudo ln -sf runit-init $CAJU/caju/bin/init
+    print "=== Sucess runit Installed in Caju ==="
 }

@@ -63,12 +63,12 @@ print "=== Start Programs Build ==="
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/programs.sh"
 
-rm -r /tmp/caju
 mkdir -pv /tmp/caju
 cd /tmp/caju
 musl
 mksh
 toybox
+runit
 
 print "=== Changes root to rootfs ==="
 chroot /mnt/cajurootfs/
