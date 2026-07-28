@@ -57,7 +57,7 @@ EOF
     CC=/tmp/toycc make defconfig
 
     print "Compiling toybox..."
-    make CC=/tmp/toycc HOSTCC="clang" LDFLAGS=--static toybox
+    make CC=/tmp/toycc HOSTCC="clang" toybox
 
     print "Installing toybox into Caju..."
     sudo cp toybox "$CAJU/bin/"
@@ -100,13 +100,20 @@ linux() {
     cd linux-7.1.5
 
     print "Configuring kernel..."
+    make mrproper
     make ARCH=x86_64 LLVM=1 LLVM_IAS=1 x86_64_defconfig
-    make ARCH=x86_64 LLVM=1 LLVM_IAS=1 olddefconfig
+    make ARCH=x86_64 LLVM=1 LLVM_IAS=1 olddefconfig 	 	
 
     print "Compiling kernel..."
     KBUILD_BUILD_TIMESTAMP='' make -j$(nproc) ARCH=x86_64 LLVM=1 LLVM_IAS=1 \
     KCFLAGS="-march=x86-64-v3" \
     KAFLAGS="-march=x86-64-v3"
+
+    print "Installing kernel modules..."
+    sudo make modules_install -j$(nproc) 
+
+    print "Installing kernel headers"
+    sudo make INSTALL_HDR_PATH="$CAJU/caju" headers_install	
 
     print "Installing kernel..."
     sudo cp arch/x86/boot/bzImage /mnt/cajurootfs/efi/vmlinuz
@@ -116,9 +123,9 @@ linux() {
 }
 
 build_base() {
+    linux
     musl
     mksh
     toybox
     runit
-    linux
 }
