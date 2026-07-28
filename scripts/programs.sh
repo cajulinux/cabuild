@@ -89,3 +89,10 @@ runit() {
     sudo ln -sf runit-init $CAJU/caju/bin/init
     print "=== Sucess runit Installed in Caju ==="
 }
+
+build_base() {
+    musl
+    mksh
+    toybox
+    runit
+}

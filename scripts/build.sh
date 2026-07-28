@@ -65,10 +65,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 mkdir -pv /tmp/caju
 cd /tmp/caju
-musl
-mksh
-toybox
-runit
+build_base
 
 print "=== Changes root to rootfs ==="
 chroot /mnt/cajurootfs/
