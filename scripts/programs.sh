@@ -110,16 +110,34 @@ linux() {
     KAFLAGS="-march=x86-64-v3"
 
     print "Installing kernel modules..."
-    sudo make modules_install -j$(nproc) 
+    make modules_install INSTALL_MOD_PATH="$CAJU/caju" -j$(nproc)
 
     print "Installing kernel headers"
-    sudo make INSTALL_HDR_PATH="$CAJU/caju" headers_install	
+    make INSTALL_HDR_PATH="$CAJU/caju" headers_install	
 
     print "Installing kernel..."
-    sudo cp arch/x86/boot/bzImage /mnt/cajurootfs/efi/vmlinuz
+    cp arch/x86/boot/bzImage /mnt/cajurootfs/efi/vmlinuz
     print "=== Sucess Kernel Installed in Caju ==="
 
     cd $TMPF
+}
+
+limine() {
+    print "Downloading Limine source..."
+    wget -nc https://github.com/Limine-Bootloader/Limine/releases/download/v12.5.2/limine-12.5.2.tar.gz
+    tar -xzf limine-12.5.2.tar.gz
+    cd limine-12.5.2
+
+    print "Configuring Limine..."
+    ./configure --prefix=/caju --enable-uefi-x86-64
+
+    print "Compiling Limine..."
+    make limine-uefi TOOLCHAIN="llvm" TOOLCHAIN_CC="clang" TOOLCHAIN_LD="ld" TOOLCHAIN_OBJCOPY="objcopy" 
+
+    print "Installing Limine EFI binary into Caju..."
+    mkdir -pv "$CAJU/efi/EFI/BOOT"
+    cp limine-12.5.2/BOOTX64.EFI "$CAJU/efi/EFI/BOOT"
+    print "=== Success Limine Installed in Caju ==="
 }
 
 build_base() {
@@ -128,4 +146,5 @@ build_base() {
     mksh
     toybox
     runit
+    limine
 }
